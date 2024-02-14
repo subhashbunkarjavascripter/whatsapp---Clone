@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css" integrity="sha512-HXXR0l2yMwHDrDyxJbrMD9eLvPe3z3qL3PPeozNTsiHJEENxx8DH2CxmV05iwG0dwoz5n4gQZQyYLUNt1Wdgfg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  </head>
+  <style>
+    *{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    }
+    html,
+    body{
+        width: 100%;
+        height: 100%;
+        
+    }
+
+    .right .input-group{
+      width: 100%;
+      position: relative;
+      height: 6%;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .input-group .emoji{
+      width: 10%;
+      height: 100%;
+      justify-content: space-around;
+      display: flex;
+    }
+
+    .input-group .sent{
+      width: 10%;
+      height: 100%;
+      align-items: center;
+      display: flex;
+      justify-content: center;
+    }
+    .input-group input{
+      text-align: center;
+    }
+    .input-group input:focus{
+      border-color: royalblue;
+      outline: none;
+    }
+
+    .right .input-group i{
+      text-decoration: none;
+      font-size: 2vw;
+      color: #fff;
+    }
+    .input-group button{
+      padding: 4px 22px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 600;
+      color: royalblue;
+      font-size: 1.5vw;
+    }
+
+    .input-group button:hover{
+      background-color: rgb(26, 221, 26);
+      color: #fff;
+    }
+
+  </style>
+  <body>
+
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+              <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="finduserform" action="/finduser" class="d-flex">
+                <input id="finduserquery" class="form-control" type="text" name="username" placeholder="Enter the Name">
+                <input type="submit" class="btn btn-success">
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+    <div id="main" class="w-100  h-100 bg-dark text-light d-flex" style="height: 100vh; overflow:hidden;">
+        <div class="left col-3 h-100 border-end">
+            <div class="usernav">
+                <div class="user p-2 gap-2 border-bottom d-flex align-items-center">
+                    <img style="height: 40px; width: 40px; border-radius:50%; object-fit:cover;" src="<%= user.pic %>" alt="">
+                    <p class="m-0"><%= user.username %></p>
+                    <i  data-bs-toggle="modal" data-bs-target="#exampleModalCenter" class="ri-add-line" style="margin-left: auto; cursor:pointer;"></i>
+                </div>
+                <div class="chats p-2">
+                    <h5>chats</h5>            
+                </div>
+            </div>
+        </div>
+        <div class="right col-9 h-100 ">
+         
+ 
+
+
+          
+        </div>
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.3/socket.io.msgpack.min.js" integrity="sha512-9YgAJf7NVeEfyOf83/EuGekqj3xf/n/ECtltpPTFZcc68SV7aMvvCf3AuMomrSud7+lkCqmeVPC0hKuMG2JcKQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.1/axios.min.js" integrity="sha512-m9S8W3a9hhBHPFAbEIaG7J9P92dzcAWwM42VvJp5n1/M599ldK6Z2st2SfJGsX0QR4LfCVr681vyU5vW8d218w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+      var oppositeUser
+
+        function addchat(username, images){ 
+            document.querySelector('.chats').innerHTML += `
+            <div onClick="openchat('${username}','${images}')" class="chat p-1 rounded-2 align-items-center gap-2 d-flex  bg-secondary" style="cursor: pointer;">
+                <img style="height: 40px; width:40px; border-radius:50%; object-fit:cover" src="${images}" alt="">
+                <p class="m-0"> ${username} </p>
+            </div>`
+            localStorage.setItem('chats', document.querySelector('.chats').innerHTML);
+
+            
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+          // Retrieve chat data from local storage
+          var storedChats = localStorage.getItem('chats');
+          if (storedChats) {
+            document.querySelector('.chats').innerHTML = storedChats;
+          }
+        })
+
+
+        async function openchat(username, images) {
+          oppositeUser = username;
+        
+          try {
+            const userResponse = await axios.post('/getUserInfo', { username });
+            const { online: userOnline, lastSeen: userLastSeen } = userResponse.data.userInfo;
+        
+            const oppositeUserResponse = await axios.post('/getUserInfo', { username: oppositeUser });
+            const { online: oppositeOnline, lastSeen: oppositeLastSeen } = oppositeUserResponse.data.userInfo;
+        
+            let userInfo = '';
+            if (userOnline && oppositeOnline) {
+              userInfo = 'Online';
+            } else if (!userOnline && userLastSeen) {
+              const lastSeenTime = new Date(userLastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              userInfo = `Last seen: ${lastSeenTime}`;
+            }
+        
+            var chats = await axios.post('/findChats', { oppositeUser });
+            chats = chats.data.chats;
+        
+            var clutter = '';
+            chats.forEach(chat => {
+              clutter += `
+                <div class="msg ${chat.fromUser === oppositeUser ? 'incomingMsg' : 'outgoingMsg'} bg-light text-dark rounded-3" style="width: fit-content; padding: 0.2rem 0.6rem;">
+                  ${getContentDisplay(chat.messageType, chat.content, chat.fileName)}
+                  ${chat.fromUser !== oppositeUser ? '<span class="status-tick" style="display: none;">✓✓</span>' : ''}
+                </div>`;
+            });
+        
+            document.querySelector('.right').innerHTML = `
+              <div style="height: 4.5rem;" class="nav p-2 d-flex gap-2 align-items-center border-bottom">
+                <img style="height: 4vw;width: 4vw; border-radius: 50%; object-fit: cover;" src="${images}" alt="">
+                <div>
+                  <p class="m-0">${username}</p>
+                  <p class="m-0" id="statusText">${userInfo}</p>
+                </div>
+              </div>
+              <div style="height: calc(100% - 7rem); overflow-y: auto;" class="conversationArea w-100 bg-secondary p-1">
+                ${clutter}
+              </div>
+              <div class="input-group">
+                <div class="emoji">
+                  <i class="ri-emotion-normal-line"></i>
+                  <label for="fileInput">
+                    <i id="attachmentIcon" class="ri-attachment-2"></i>
+                  </label>
+                  <input type="file" id="fileInput" style="display: none;" onchange="fileSelected(event)">
+                </div>
+                <input onchange="sendMessage(event)" id="messageInput" style="width: 80%; padding: 5px;" type="text" placeholder="Write Message">
+                <div class="sent">
+                  <input type="hidden" id="selectedFile" name="selectedFile">
+                  <button  onclick="sendMessage()" type="button">send</button>
+                </div>
+              </div>`;
+        
+            scrollToLastMessage(); // Added for auto-scrolling
+        
+            document.getElementById('button-addon2').addEventListener('click', function () {
+              sendMessage();
+            });
+        
+            document.getElementById('sendButton').addEventListener('click', sendMessage);
+        
+          } catch (error) {
+            console.error('Error opening chat:', error);
+          }
+        }
+        
+        function scrollToLastMessage() {
+          const conversationArea = document.querySelector('.conversationArea');
+          conversationArea.scrollTop = conversationArea.scrollHeight;
+        }
+        
+        
+        function getContentDisplay(messageType, content, fileName) {
+          switch (messageType) {
+            case 'text':
+              return `<span class="message-content">${content}</span>`;
+            case 'image':
+              return `<img src="data:image/png;base64,${content}" alt="Image" style="max-width: 30%;">`;
+            // ... other cases
+            default:
+              return `<span class="message-content">${content}</span>`;
+          }
+        }
+      
+        
+
+
+ document.addEventListener('DOMContentLoaded', async function () {
+  try {
+    const response = await axios.get('/getMessages');  // Replace with your actual endpoint
+    const messages = response.data.messages;
+
+    // Display messages in the conversation area
+    messages.forEach(message => {
+      displayMessage(message);
+    });
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+  }
+});
+
+function displayMessage(message) {
+  const conversationArea = document.querySelector('.conversationArea');
+  if (!conversationArea) {
+    console.error('Error: Conversation area not found.');
+    return;
+  }
+
+  const newMsgElement = document.createElement('div');
+
+  if (message.fromUser === oppositeUser) {
+    // Message received
+    newMsgElement.className = 'msg incomingMsg bg-light text-dark rounded-3';
+  } else {
+    // Message sent
+    newMsgElement.className = 'msg outgoingMsg ms-auto bg-light text-dark rounded-3';
+
+    // Update status-tick for sent messages
+    newMsgElement.innerHTML += `<span class="status-tick" style="display: ${message.status === 'seen' ? 'inline' : 'none'};">✓✓</span>`;
+  }
+
+  newMsgElement.style.width = 'fit-content';
+  newMsgElement.style.padding = '0.2rem 0.6rem';
+
+  if (message.messageType === 'text') {
+    newMsgElement.innerHTML += `<span class="message-content">${message.content}</span>`;
+  } else if (message.messageType === 'image') {
+    const imageElement = document.createElement('img');
+    imageElement.src = `data:image/png;base64,${message.content}`;
+    imageElement.alt = 'Image';
+    imageElement.style.maxWidth = '100%';
+    newMsgElement.appendChild(imageElement);
+
+    // Ensure the image is loaded before scrolling
+    imageElement.onload = function () {
+      conversationArea.scrollTo(0, conversationArea.scrollHeight);
+    };
+  }
+
+  conversationArea.appendChild(newMsgElement);
+}
+
+                      
+
+          
+
+        function openFileInput() {
+          document.getElementById('fileInput').click();
+        }
+
+        const sendButton = document.querySelector('#sendButton');
+
+        function fileSelected(event) {
+          try {
+            const selectedFileInput = event.target;
+            const selectedFile = selectedFileInput.files[0];
+        
+            if (selectedFile) {
+              // Optionally, you can display the selected file name or any other information
+              const fileNameDisplay = document.getElementById('fileNameDisplay');
+              if (fileNameDisplay) {
+                fileNameDisplay.innerText = `Selected File: ${selectedFile.name}`;
+              }
+        
+              // Set the selected file in a hidden input field
+              document.getElementById('selectedFile').value = selectedFile.name;
+            } else {
+              console.log('No file selected.');
+            }
+          } catch (error) {
+            console.error('fileSelected error:', error.message);
+          }
+        }  
+      
+
+        document.addEventListener('DOMContentLoaded', function () {
+          var sendMessageButton = document.getElementById('sendMessageButton');
+          var messageInput = document.getElementById('messageInput');
+  
+          if (sendMessageButton && messageInput) {
+              sendMessageButton.addEventListener('click', function () {
+                  var msg = messageInput.value.trim();
+                  if (msg) {
+                      // Display the sent message in the conversation area
+                      document.querySelector('.conversationArea').innerHTML += `
+                          <div class="msg outgoingMsg ms-auto bg-light text-dark rounded-3" style="width: fit-content; padding: 0.2rem 0.6rem;">
+                              ${msg}
+                          </div>`;
+  
+                      // Emit a newmsg event to the server
+                      var payload = {
+                          msg,
+                          toUser: oppositeUser,
+                          fromUser: username
+                      };
+                      socket.emit('newmsg', payload);
+  
+                      // Scroll to the bottom of the conversation area
+                      document.querySelector('.conversationArea').scrollTo(0, document.querySelector('.conversationArea').getBoundingClientRect().bottom);
+  
+                      // Clear the input field
+                      messageInput.value = "";
+                  }
+              });
+          }
+      }); 
+
+
+      
+
+      document.addEventListener("DOMContentLoaded", function() {
+        const sendButton = document.querySelector("#sendButton");
+        sendButton.addEventListener("click", sendMessage);
+
+        const fileInput = document.querySelector("#selectedFile");
+        fileInput.addEventListener("change", fileSelected);
+    });
+
+
+
+
+        var form = document.querySelector('#finduserform');
+        form.addEventListener('submit', async (event) =>{
+            event.preventDefault();
+            let query = document.querySelector('#finduserquery').value
+            try{  
+              var respose = await axios.post('/finduser',{
+                username:query,
+              })
+            } catch(err){
+
+              alert('user not found')
+            }
+
+            var finduser = respose.data.user
+            if(finduser){
+              addchat(finduser.username, finduser.pic)
+              var myModelEl = document.getElementById('exampleModalCenter');
+              var modal =bootstrap.Modal.getInstance(myModelEl);
+              modal.hide();
+            }
+
+        })
+
+
+        var username = '<%= user.username %>';
+        var socket = io();
+        socket.emit('userConnected', {
+            username
+        });
+    
+        socket.on('msg', msg => {
+          if (msg.newChat) {
+            // If it's a new chat, add a chat entry
+            addchat(msg.fromUser, msg.fromUserPic);
+          } else {
+            // Handle incoming messages based on chat window status
+            if (chatOpen) {
+              displayMessage(msg);
+            }
+          }
+        });
+
+        console.log('Emitting to sender:', socket.id);
+        socket.emit('msg', msg);
+
+         const receiverSocketId = connectedUsers[oppositeUser];
+          if (receiverSocketId) {
+          console.log('Emitting to receiver:', receiverSocketId);
+         io.to(receiverSocketId).emit('msg', msg);
+         }
+
+      
+        
+
+         function updateConversation(msg) {
+          const conversationArea = document.querySelector('.conversationArea');
+          const newMsgElement = document.createElement('div');
+          
+          if (msg.fromUser === oppositeUser) {
+              // Message received
+              newMsgElement.className = 'msg incomingMsg bg-light text-dark rounded-3';
+          } else {
+              // Message sent
+              newMsgElement.className = 'msg outgoingMsg ms-auto bg-light text-dark rounded-3';
+              
+              // Update status-tick for sent messages
+              newMsgElement.innerHTML += `<span class="status-tick" style="display: ${msg.status === 'seen' ? 'inline' : 'none'};">✓✓</span>`;
+          }
+      
+          newMsgElement.style.width = 'fit-content';
+          newMsgElement.style.padding = '0.2rem 0.6rem';
+          newMsgElement.innerHTML += `<span class="message-content">${msg.msg}</span>`;
+          
+          conversationArea.appendChild(newMsgElement);
+          conversationArea.scrollTo(0, conversationArea.scrollHeight);
+      }
+      
+
+      async function sendMessage(event) {
+        try {
+          const messageInput = document.getElementById('messageInput');
+          const selectedFileInput = document.getElementById('fileInput');
+          const selectedFile = selectedFileInput.files[0];
+      
+          // Check if either the message or a file is present
+          if (messageInput.value.trim() || selectedFile) {
+            let content = '';
+            let messageType = 'text'; // Default to text
+      
+            if (messageInput.value.trim()) {
+              content = messageInput.value.trim();
+            } else if (selectedFile) {
+              content = await encodeImage(selectedFile);
+              messageType = 'image';
+            }
+      
+            // Display the message in the conversation area
+            displayMessage({
+              fromUser: username,
+              messageType: messageType,
+              content: content,
+              fileName: selectedFile ? selectedFile.name : '',
+              status: 'done', // Add status field
+            });
+      
+            // Emit a newmsg event to the server with the message and file details
+            const payload = {
+              msg: content,
+              file: selectedFile,
+              toUser: oppositeUser,
+              fromUser: username,
+              messageType: messageType,
+              content: content,
+              fileName: selectedFile ? selectedFile.name : '',
+              status: 'done', // Add status field
+            };
+      
+            socket.emit('newmsg', payload);
+      
+            // Scroll to the bottom of the conversation area
+            scrollToLastMessage();
+      
+            // Clear the input and file selection fields
+            messageInput.value = '';
+            selectedFileInput.value = '';
+      
+            // Print a message to the console indicating successful file send
+            console.log('File successfully sent:', payload);
+          }
+        } catch (error) {
+          console.error('sendMessage error:', error.message);
+        }
+      }
+      
+      // Helper function to encode image as base64
+      function encodeImage(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result.split(',')[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+        
+
+        console.log('Emitting to sender:', socket.id);
+        socket.emit('msg', { newChat: true, fromUser, fromUserPic });
+      
+        // Emitting to receiver
+       
+        if (receiverSocketId) {
+          console.log('Emitting to receiver:', receiverSocketId);
+          io.to(receiverSocketId).emit('msg', { newChat: true, fromUser, fromUserPic });
+        }
+
+
+
+// Modify your socket.on('msg', ...) event to handle incoming messages
+socket.on('msg', msg => {
+  if (msg.newChat) {
+      // If it's a new chat, add a chat entry (you can adjust this based on your UI)
+      addchat(msg.fromUser, msg.fromUserPic);
+  } else {
+      // Display the received message in the conversation area
+      document.querySelector('.conversationArea').innerHTML += `
+          <div class="msg incomingMsg bg-light text-dark rounded-3" style="width: fit-content; padding: 0.2rem 0.6rem;">
+              ${msg.msg}
+          </div>`;
+
+      // Scroll to the bottom of the conversation area
+      document.querySelector('.conversationArea').scrollTo(0, document.querySelector('.conversationArea').getBoundingClientRect().bottom);
+  }
+});
+
+// Inside your client-side script to handle user status updates
+socket.on('updateUserStatus', status => {
+  // Iterate through the status object and update UI accordingly
+  for (const username in status) {
+      const userStatus = status[username];
+      if (userStatus.online) {
+          console.log(`${username} is online`);
+          // Update UI to show the user is online
+      } else {
+          console.log(`${username} was last seen at ${userStatus.lastSeen}`);
+          // Update UI to show the user's last seen time
+      }
+  }
+});
+
+
+
+       
+        function updateStatusUI(userStatus) {
+            var statusText = document.getElementById('statusText');
+            if (userStatus.online) {
+                statusText.innerText = 'Online';
+            } else {
+                var lastSeen = new Date(userStatus.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                statusText.innerText = 'Last seen: ' + lastSeen;
+            }
+        }
+
+
+    </script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var username = '<%= user.username %>'
+        var socket = io();
+        socket.emit('userConnected',{
+          username
+        });
+
+        socket.on('msg',msg =>{
+          if(msg.newChat)
+           addchat(msg.fromUser, msg.fromUserPic)
+           else{
+            if(msg.fromUser === oppositeUser){
+             document.querySelector('.conversationArea').innerHTML += `<div class="msg incomingmsg bg-light text-dark rounded-3" style="width: fit-content; padding: 0.2rem 0.6rem">
+                ${msg.msg}     
+              </div>`
+          document.querySelector('.conversationArea').scrollTo(0,document.querySelector('.conversationArea').getBoundingClientRect().bottom)
+
+
+            }
+           }
+        })
+    </script>
+
+</body>
+</html>
