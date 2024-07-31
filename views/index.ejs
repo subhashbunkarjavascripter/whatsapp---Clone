@@ -480,7 +480,7 @@ function displayMessage(message) {
             // Emit a newmsg event to the server with the message and file details
             const payload = {
               msg: content,
-              file: selectedFile,
+              file: selectedFile ? selectedFile : null,
               toUser: oppositeUser,
               fromUser: username,
               messageType: messageType,
